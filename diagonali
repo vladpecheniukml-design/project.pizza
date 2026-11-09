@@ -1,0 +1,67 @@
+using System;
+using System.Linq;
+using System.Text;
+
+namespace diagonali
+{
+    internal class Program
+    {
+        static void Main()
+        {
+            Console.OutputEncoding = Encoding.UTF8;
+
+            // Початкова матриця 4x4
+            int[,] A = {
+                { 12, 46, 58, 91 },
+                { 83, 24, 99, 102 },
+                { 54, 31, 27, 17 },
+                { 42, 28, 93, 52 }
+            };
+
+            int n = A.GetLength(0);
+
+            // Виведення початкової матриці
+            Console.WriteLine("Початкова матриця A:");
+            for (int i = 0; i < n; i++)
+            {
+                for (int j = 0; j < n; j++)
+                    Console.Write($"{A[i, j],4} ");
+                Console.WriteLine();
+            }
+
+            // --- РОЗБИТТЯ З ДВОВИМІРНОГО НА ДВА ОДНОВИМІРНИХ МАСИВИ ---
+            // 1. Масив парних чисел (діляться націло на 2)
+            int[] evenArray = A.Cast<int>().Where(x => x % 2 == 0).ToArray();
+
+            // 2. Масив непарних чисел (не діляться націло на 2)
+            int[] oddArray = A.Cast<int>().Where(x => x % 2 != 0).ToArray();
+
+            // Виведення отриманих одновимірних масивів
+            Console.WriteLine("\n--- Два окремі одновимірні масиви ---");
+            Console.WriteLine($"1. Парні числа (діляться націло): \n{string.Join(", ", evenArray)}");
+            Console.WriteLine($"\n2. Непарні числа (не діляться націло): \n{string.Join(", ", oddArray)}");
+
+            // Обчислення сум та добутків діагоналей (з попередньої задачі)
+            int sumMain = 0, sumSec = 0;
+            long prodMain = 1, prodSec = 1;
+
+            for (int i = 0; i < n; i++)
+            {
+                sumMain += A[i, i];
+                prodMain *= A[i, i];
+
+                sumSec += A[i, n - 1 - i];
+                prodSec *= A[i, n - 1 - i];
+            }
+
+            // Виведення результатів діагоналей
+            Console.WriteLine("\n--- Результат по діагоналях ---");
+            Console.WriteLine($"Головна діагональ: Сума = {sumMain:N0}, Добуток = {prodMain:N0}");
+            Console.WriteLine($"Побічна діагональ:  Сума = {sumSec:N0}, Добуток = {prodSec:N0}");
+
+            // Затримка перед закриттям вікна
+            Console.WriteLine("\n[Натисніть будь-яку клавішу для виходу...]");
+            Console.ReadKey();
+        }
+    }
+}
