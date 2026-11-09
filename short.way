@@ -1,0 +1,104 @@
+using System;
+using System.Collections.Generic;
+
+namespace short_way
+{
+    class Program
+    {
+        // Назви вершин: 0 - База, 1 - A, 2 - B, 3 - C, 4 - D, 5 - E
+        static string[] locations = { "База", "A", "B", "C", "D", "E" };
+
+        // Матриця відстаней між вершинами
+        static int[,] distances = {
+            // База    A    B    C    D    E
+            {   0, 170, 250, 310, 290, 135 }, // База
+            { 170,   0, 130, 240, 300, 280 }, // A
+            { 250, 130,   0, 190, 280, 310 }, // B
+            { 310, 240, 190,   0, 120, 220 }, // C
+            { 290, 300, 280, 120,   0, 140 }, // D
+            { 135, 280, 310, 220, 140,   0 }  // E
+        };
+
+        static int minCost = int.MaxValue;
+        static List<int> bestRoute = new List<int>();
+
+        static void Main(string[] args)
+        {
+            // Встановлюємо кодування UTF-8 для української мови в консолі
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+            Console.WriteLine("==================================================");
+            Console.WriteLine(" АНАЛІЗ ВАРІАНТІВ МАРШРУТІВ ДЛЯ БПЛА (ЕКОМОНІТОРИНГ) ");
+            Console.WriteLine("==================================================\n");
+
+            // Список проміжних точок для перебору всіх можливих варіантів обльоту (A, B, C, D, E)
+            List<int> currentRoute = new List<int> { 1, 2, 3, 4, 5 };
+
+            // Запускаємо перебір усіх можливих варіантів
+            PermuteAndEvaluate(currentRoute, 0);
+
+            // Виводимо ідеальний (найкоротший) варіант
+            Console.WriteLine("\n--------------------------------------------------");
+            Console.WriteLine("🏆 НАЙКОРОТШИЙ (ОПТИМАЛЬНИЙ) МАРШРУТ:");
+            Console.WriteLine("--------------------------------------------------");
+            Console.Write("База -> ");
+            foreach (int next in bestRoute)
+            {
+                Console.Write($"{locations[next]} -> ");
+            }
+            Console.WriteLine("База");
+            Console.WriteLine($"Загальна довжина найкращого маршруту: {minCost} км\n");
+        }
+
+        /// <summary>
+        /// Рекурсивна функція, яка генерує різні варіанти маршрутів, 
+        /// рахує їх довжину та виводить усі можливі комбінації для звіту.
+        /// </summary>
+        static void PermuteAndEvaluate(List<int> list, int start)
+        {
+            if (start == list.Count)
+            {
+                int currentCost = 0;
+                int currentLoc = 0; // Починаємо з бази
+
+                // Формуємо рядок виведення поточного варіанту маршруту
+                string routeStr = "База -> ";
+
+                foreach (int nextLoc in list)
+                {
+                    currentCost += distances[currentLoc, nextLoc];
+                    routeStr += $"{locations[nextLoc]} -> ";
+                    currentLoc = nextLoc;
+                }
+                // Повернення на базу
+                currentCost += distances[currentLoc, 0];
+                routeStr += "База";
+
+                // Виводимо цей варіант на екран (щоб викладач бачив, що програма аналізує різні шляхи)
+                Console.WriteLine($"Варіант: {routeStr} | Довжина: {currentCost} км");
+
+                // Перевіряємо, чи цей варіант найкоротший
+                if (currentCost < minCost)
+                {
+                    minCost = currentCost;
+                    bestRoute = new List<int>(list);
+                }
+                return;
+            }
+
+            for (int i = start; i < list.Count; i++)
+            {
+                Swap(list, start, i);
+                PermuteAndEvaluate(list, start + 1);
+                Swap(list, start, i); // Бектекінг
+            }
+        }
+
+        static void Swap(List<int> list, int i, int j)
+        {
+            int temp = list[i];
+            list[i] = list[j];
+            list[j] = temp;
+        }
+    }
+}
